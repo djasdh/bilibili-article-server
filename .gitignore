@@ -1,0 +1,12 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# 本地登录态（切勿提交）
+cookie*.txt
+.env
+
+# 临时产物
+dist/

@@ -1,0 +1,33 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 打包源码
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          name="bilibili-article-server-${version}"
+          mkdir -p "dist/${name}"
+          cp server.py requirements.txt LICENSE README.md "dist/${name}/"
+          tar -czf "dist/${name}.tar.gz" -C dist "${name}"
+          cd dist
+          sha256sum "${name}.tar.gz" > SHA256SUMS
+
+      - name: 创建 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/SHA256SUMS \
+            --title "$GITHUB_REF_NAME" --generate-notes
